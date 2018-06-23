@@ -59,11 +59,26 @@ void Bone::addScale(uint16_t frame, const glm::vec3& scale)
 
 glm::mat4 Bone::calculateAnimMatrix(float frame) const
 {
-	return glm::mat4(1.0f);
+	glm::mat4 animMatrix = glm::mat4();
+
+	glm::vec3 positionVector = calculatePosition(frame);
+	glm::vec3 scaleVector = calculateScale(frame);
+	glm::quat rotationQuaternion = calculateRotation(frame);
+
+	return 	animMatrix;
 }
 
 glm::vec3 Bone::calculatePosition(float frame) const
 {
+	int boneUsed;
+	for (int i = 0; i < positionsVector.size(); ++i)
+	{
+		if (positionsVector.at(i).first > frame)
+		{
+			boneUsed = i;
+			break;
+		}
+	}
 	return glm::vec3(1.0f);
 }
 

@@ -44,5 +44,8 @@ private:
 	std::vector<shared_ptr<Buffer>> buffersVector;
 	std::vector<Material> materialsVector;
 
+	std::vector<Bone> bones;
+
+	float animLastFrame;
 
 };

@@ -87,7 +87,7 @@ int createModelsInWorld(World & world, std::vector<Emitter>& emittersVector)
 
 	// Create model
 	shared_ptr<Model> dwarfModel = make_shared<Model>(dwarfMesh);
-	//skyboxModel->setScale(vec3(20.0f, 20.0f, 20.0f));
+	dwarfModel->setScale(vec3(0.05f, 0.05f, 0.05f));
 	dwarfModel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	//skyboxMesh->getMaterial(0).setLighting(false);
 
@@ -101,10 +101,11 @@ int createModelsInWorld(World & world, std::vector<Emitter>& emittersVector)
 
 	// Set Lighting
 	world.setAmbient(glm::vec3(0.1, 0.1, 0.1));
-	std::shared_ptr<Light>pointLight = std::make_shared<Light>(vec3(1.0f, 1.0f, 1.0f), Light::Type::POINT,
-		glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	//Light(glm::vec3 position, Type type, glm::vec3 color, float linearAttenuation, glm::vec3 direction)
+	std::shared_ptr<Light>directionalLight = std::make_shared<Light>(vec3(1.0f, 1.0f, 1.0f), Light::Type::DIRECTIONAL,
+		glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 
-	world.addEntity(pointLight);
+	world.addEntity(directionalLight);
 
 	return 1;
 }

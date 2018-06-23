@@ -494,3 +494,33 @@ std::shared_ptr<Mesh> Mesh::load(
 	}
 }
 
+void Mesh::addBone(const Bone& bone)
+{
+	bones.push_back(bone);
+}
+
+const std::vector<Bone>& Mesh::getBones() const
+{
+	return bones;
+}
+
+uint16_t Mesh::getLastFrame() const
+{
+	return animLastFrame;
+}
+
+void Mesh::setLastFrame(uint16_t lastFrame)
+{
+	animLastFrame = lastFrame;
+}
+
+int Mesh::getBoneIndex(const char* name) const
+{
+	for (int i = 0; i < bones.size(); i++)
+	{
+		if (bones.at(i).getName() == name)
+			return i;
+	}
+
+	return -1;
+}
