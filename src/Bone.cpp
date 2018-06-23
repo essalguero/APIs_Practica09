@@ -54,7 +54,7 @@ void Bone::addScale(uint16_t frame, const glm::vec3& scale)
 	newScale.first = frame;
 	newScale.second = scale;
 
-	positionsVector.push_back(newScale);
+	scalesVector.push_back(newScale);
 }
 
 glm::mat4 Bone::calculateAnimMatrix(float frame) const
@@ -65,29 +65,104 @@ glm::mat4 Bone::calculateAnimMatrix(float frame) const
 	glm::vec3 scaleVector = calculateScale(frame);
 	glm::quat rotationQuaternion = calculateRotation(frame);
 
-	return 	animMatrix;
+	glm::mat4 translate = glm::translate(animMatrix, positionVector);
+	glm::mat4 rotate = glm::rotate(translate, glm::angle(rotationQuaternion), glm::axis(rotationQuaternion));
+	glm::mat4 scale = glm::scale(rotate, scaleVector);
+
+	return 	scale;
 }
 
 glm::vec3 Bone::calculatePosition(float frame) const
 {
-	int boneUsed;
+	if (positionsVector.size() == 0)
+		return glm::vec3();
+
 	for (int i = 0; i < positionsVector.size(); ++i)
 	{
-		if (positionsVector.at(i).first > frame)
+		if (positionsVector.at(i).first == frame)
 		{
-			boneUsed = i;
-			break;
+			return positionsVector.at(i).second;
+		}
+		else
+		{
+			if (positionsVector.at(i).first > frame)
+			{
+				int frameAnterior = positionsVector.at(i - 1).first;
+
+				float a = (frame - frameAnterior) / (positionsVector.at(i).first - frameAnterior);
+
+				glm::vec3 interpolatedVertor = glm::mix(positionsVector.at(i - 1).second,
+					positionsVector.at(i).second, a);
+
+				return interpolatedVertor;
+			}
 		}
 	}
-	return glm::vec3(1.0f);
+
+	// devolver el ultimo si se ha llegado al final
+	return positionsVector.at(positionsVector.size() - 1).second;
 }
 
 glm::quat Bone::calculateRotation(float frame) const
 {
-	return glm::quat();
+	if (rotationsQuads.size() == 0)
+		return glm::quat();
+
+	for (int i = 0; i < rotationsQuads.size(); ++i)
+	{
+		if (rotationsQuads.at(i).first == frame)
+		{
+			return rotationsQuads.at(i).second;
+		}
+		else
+		{
+			if (rotationsQuads.at(i).first > frame)
+			{
+				int frameAnterior = rotationsQuads.at(i - 1).first;
+
+				float a = (frame - frameAnterior) / (rotationsQuads.at(i).first - frameAnterior);
+
+				glm::quat interpolatedsQuads = glm::slerp(rotationsQuads.at(i - 1).second,
+					rotationsQuads.at(i).second, a);
+
+				return interpolatedsQuads;
+			}
+		}
+	}
+
+	// devolver el ultimo si se ha llegado al final
+	return rotationsQuads.at(rotationsQuads.size() - 1).second;
 }
 
 glm::vec3 Bone::calculateScale(float frame) const
 {
-	return glm::vec3(1.0f);
+	int boneUsed;
+
+	if (scalesVector.size() == 0)
+		return glm::vec3();
+
+	for (int i = 0; i < scalesVector.size(); ++i)
+	{
+		if (scalesVector.at(i).first == frame)
+		{
+			return scalesVector.at(i).second;
+		}
+		else
+		{
+			if (scalesVector.at(i).first > frame)
+			{
+				int frameAnterior = scalesVector.at(i - 1).first;
+
+				float a = (frame - frameAnterior) / (scalesVector.at(i).first - frameAnterior);
+
+				glm::vec3 interpolatedVertor = glm::mix(scalesVector.at(i - 1).second,
+					scalesVector.at(i).second, a);
+
+				return interpolatedVertor;
+			}
+		}
+	}
+
+	// devolver el ultimo si se ha llegado al final
+	return scalesVector.at(scalesVector.size() - 1).second;
 }

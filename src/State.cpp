@@ -11,3 +11,6 @@ std::vector<std::shared_ptr<Light>> State::lights;
 glm::vec3 State::ambient;
 
 glm::vec3 State::eyePos;
+
+bool State::animation;
+std::shared_ptr<std::vector<glm::mat4>> State::animMatrices;

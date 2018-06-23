@@ -421,7 +421,7 @@ std::shared_ptr<Mesh> Mesh::load(
 			bool includesBoneWeights = false;
 			std::vector<float> boneWeightsVector;
 			std::string boneWeightsString = bufferNode.child("bone_weights").text().as_string();
-			if (boneIndicesString != "")
+			if (boneWeightsString != "")
 			{
 				boneWeightsVector = splitStr<float>(boneIndicesString, ',');
 				includesBoneWeights = true;
@@ -431,6 +431,8 @@ std::shared_ptr<Mesh> Mesh::load(
 			auto coordsIterator = coordsVector.begin();
 			auto normalsIterator = normalsVector.begin();
 			auto tangentsIterator = tangentsVector.begin();
+			auto bonesIndicesIterator = boneIndicesVector.begin();
+			auto bonesWeightsIterator = boneWeightsVector.begin();
 
 			vector<Vertex> vertexVector;
 
@@ -462,6 +464,20 @@ std::shared_ptr<Mesh> Mesh::load(
 					tangentsIterator += 3;
 				}
 
+				if (includesBoneIndices)
+				{
+					vertex.bonesIndexes = glm::vec4(*bonesIndicesIterator, *(bonesIndicesIterator + 1),
+						*(bonesIndicesIterator + 2), *(bonesIndicesIterator + 3));
+					bonesIndicesIterator += 4;
+				}
+
+				if (includesBoneWeights)
+				{
+					vertex.bonesWeight = glm::vec4(*bonesWeightsIterator, *(bonesWeightsIterator + 1),
+						*(bonesWeightsIterator + 2), *(bonesWeightsIterator + 3));
+					bonesWeightsIterator += 4;
+				}
+
 				vertexVector.push_back(vertex);
 			}
 
@@ -484,6 +500,134 @@ std::shared_ptr<Mesh> Mesh::load(
 
 			mesh->addBuffer(buffer, material);
 		}
+
+		uint8_t lastFrame;
+		std::string lastFrameString = meshNode.child("last_frame").text().as_string();
+		if (lastFrameString != "")
+		{
+			lastFrame = stoi(lastFrameString);
+		}
+		else
+		{
+			lastFrame = 0;
+		}
+
+		mesh->setLastFrame(lastFrame);
+
+		pugi::xml_node bonesNode = meshNode.child("bones");
+		for (pugi::xml_node boneNode = bonesNode.child("bone");
+			boneNode;
+			boneNode = boneNode.next_sibling("bone"))
+		{
+			std::string nameString = boneNode.child("name").text().as_string();
+
+			glm::mat4 invPose;
+			std::string invPoseString = boneNode.child("inv_pose").text().as_string();
+			if (invPoseString != "")
+			{
+				char delim = ',';
+				std::vector<float>poseVector = splitStr<float>(invPoseString, delim);
+				invPose = glm::mat4(poseVector.at(0), poseVector.at(1), poseVector.at(2), 
+					poseVector.at(3), poseVector.at(4), poseVector.at(5), poseVector.at(6), poseVector.at(7), 
+					poseVector.at(8), poseVector.at(9), poseVector.at(10), poseVector.at(11), poseVector.at(12),
+					poseVector.at(13), poseVector.at(14), poseVector.at(15));
+			}
+			else
+			{
+				invPose = glm::mat4();
+			}
+
+			bool hasPositions = false;
+			std::vector<float> positionsVector;
+			std::string positionsString = boneNode.child("positions").text().as_string();
+			if (positionsString != "")
+			{
+				char delim = ',';
+				positionsVector = splitStr<float>(positionsString, delim);
+				hasPositions = true;
+			}
+
+			bool hasRotations = false;
+			std::vector<float> rotationsVector;
+			std::string rotationsString = boneNode.child("rotations").text().as_string();
+			if (rotationsString != "")
+			{
+				char delim = ',';
+				rotationsVector = splitStr<float>(rotationsString, delim);
+				hasRotations = true;
+			}
+
+			bool hasScales = false;
+			std::vector<float> scalesVector;
+			std::string scalesString = boneNode.child("scales").text().as_string();
+			if (scalesString != "")
+			{
+				char delim = ',';
+				scalesVector = splitStr<float>(scalesString, delim);
+				hasScales = true;
+			}
+
+			int parent = -1;
+			std::string parentString = boneNode.child("parent").text().as_string();
+			if (parentString != "")
+			{
+				parent = mesh->getBoneIndex(parentString.c_str());
+			}
+
+			Bone bone = Bone(nameString.c_str(), parent);
+
+			bone.setInvPoseMatrix(invPose);
+
+			auto positionsIterator = positionsVector.begin();
+			auto rotationsIterator = rotationsVector.begin();
+			auto scalesIterator = scalesVector.begin();
+
+			vector<Vertex> vertexVector;
+
+			while(positionsIterator != positionsVector.end() || 
+				rotationsIterator != rotationsVector.end() ||
+				scalesIterator != scalesVector.end()
+				)
+			{
+				if (hasPositions && positionsIterator != positionsVector.end())
+				{
+					int positionFrame = *positionsIterator;
+					glm::vec3 position = glm::vec3(*(positionsIterator + 1), *(positionsIterator + 2), *(positionsIterator + 3));
+
+					bone.addPosition(positionFrame, position);
+
+					positionsIterator += 4;
+				}
+
+				if (hasRotations && rotationsIterator != rotationsVector.end())
+				{
+					int rotationFrame = *rotationsIterator;
+					glm::quat rotation = glm::quat(*(rotationsIterator + 1), *(rotationsIterator + 2),
+						*(rotationsIterator + 3), *(rotationsIterator + 4));
+
+
+					bone.addRotation(rotationFrame, rotation);
+
+					rotationsIterator += 5;
+				}
+
+				if (hasScales && scalesIterator != scalesVector.end())
+				{
+					int scaleFrame = *scalesIterator;
+					glm::vec3 scale = glm::vec3(*(scalesIterator + 1), *(scalesIterator + 2), *(scalesIterator + 3));
+
+
+					bone.addScale(scaleFrame, scale);
+
+
+					scalesIterator += 4;
+				}
+			}
+			
+			mesh->addBone(bone);
+
+		}
+
 
 		return mesh;
 	}
@@ -518,7 +662,7 @@ int Mesh::getBoneIndex(const char* name) const
 {
 	for (int i = 0; i < bones.size(); i++)
 	{
-		if (bones.at(i).getName() == name)
+		if (strcmp(bones.at(i).getName(), name) == 0)
 			return i;
 	}
 

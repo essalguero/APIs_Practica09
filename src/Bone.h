@@ -29,7 +29,7 @@ private:
 	glm::mat4 animationMatrix;
 
 	std::vector<std::pair<uint16_t, glm::vec3> > positionsVector;
-	std::vector<std::pair<uint16_t, glm::vec3> > scaleVector;
+	std::vector<std::pair<uint16_t, glm::vec3> > scalesVector;
 	std::vector<std::pair<uint16_t, glm::quat> > rotationsQuads;
 
 

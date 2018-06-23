@@ -91,6 +91,12 @@ int createModelsInWorld(World & world, std::vector<Emitter>& emittersVector)
 	dwarfModel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	//skyboxMesh->getMaterial(0).setLighting(false);
 
+	dwarfModel->animate(true);
+	dwarfModel->setFps(16);
+	dwarfMesh->getMaterial(0).setLighting(false);
+	dwarfMesh->getMaterial(1).setLighting(false);
+
+
 	// Add model
 	world.addEntity(dwarfModel);
 
@@ -102,10 +108,10 @@ int createModelsInWorld(World & world, std::vector<Emitter>& emittersVector)
 	// Set Lighting
 	world.setAmbient(glm::vec3(0.1, 0.1, 0.1));
 	//Light(glm::vec3 position, Type type, glm::vec3 color, float linearAttenuation, glm::vec3 direction)
-	std::shared_ptr<Light>directionalLight = std::make_shared<Light>(vec3(1.0f, 1.0f, 1.0f), Light::Type::DIRECTIONAL,
-		glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, glm::vec3(0.0f, 0.0f, -1.0f));
+	//std::shared_ptr<Light>directionalLight = std::make_shared<Light>(vec3(1.0f, 1.0f, 1.0f), Light::Type::DIRECTIONAL,
+	//	glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, glm::vec3(0.0f, 0.0f, -1.0f));
 
-	world.addEntity(directionalLight);
+	//world.addEntity(directionalLight);
 
 	return 1;
 }
@@ -151,7 +157,7 @@ int main(int, char**) {
 
 	// Generate a camera and store it in the world
 	shared_ptr<Camera> camera = make_shared<Camera>();
-	camera->setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+	camera->setPosition(glm::vec3(0.0f, 0.0f, 8.0f));
 	camera->setRotation(glm::vec3(0, 0, 0));
 	camera->setClearColor(glm::vec3(0.0f, 0.0f, 0.0f));
 	world.addEntity(camera);

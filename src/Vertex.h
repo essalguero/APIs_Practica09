@@ -14,6 +14,6 @@ public:
 	glm::vec3 tangent;
 
 	glm::vec4 bonesIndexes;
-	glm::vec4 weight;
+	glm::vec4 bonesWeight;
 };
 

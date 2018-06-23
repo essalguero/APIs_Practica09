@@ -76,7 +76,7 @@ LightComponents calculateLight(int i)
         // Lee una normal de la textura
         vec3 normalTextureSample;
         
-            normalTextureSample = texture2D(normalTexture, fTexture).xyz;
+        normalTextureSample = texture2D(normalTexture, fTexture).xyz;
         
         
         // Convertirla a normal a partir de rgb... Segun apuntes, para pasar de normal a normal = (rgb * 0.5) + 0.5
@@ -120,7 +120,7 @@ LightComponents calculateLight(int i)
 }
 
 
-void main()
+void main2()
 {
     vec3 diffuseComponent = vec3(1.0, 1.0, 1.0);
     vec3 specularComponent = vec3(0.0, 0.0, 0.0);
@@ -193,9 +193,11 @@ void main()
 			else
 			{
 				gl_FragColor = texture2D(texSampler, fTexture) * color * vec4(diffuseComponent, 1) + vec4(specularComponent, 0);
-				gl_FragColor = texture2D(texSampler, fTexture)* color;
+				gl_FragColor = texture2D(texSampler, fTexture) * color;
 				//gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 			}
+
+			gl_FragColor = texture2D(texSampler, fTexture);
 
 			//gl_FragColor = calculatedColor;
 
@@ -246,5 +248,11 @@ void main()
         }
         
     //} // if(hasColor)
-    
+    gl_FragColor = texture2D(texSampler, fTexture);
+}
+
+void main()
+{
+	//gl_FragColor = texture2D(texSampler, fTexture);
+	gl_FragColor = vec4(N, 1);
 }

@@ -62,5 +62,8 @@ private:
 	int vnormalLoc;
 
 	int vtangentLoc;
+
+	int vboneIndicesLoc;
+	int vboneWeightLoc;
 };
 

@@ -87,6 +87,9 @@ Shader::Shader(string const & vertexShaderSource, const string & fragmentShaderS
 	vnormalLoc = glGetAttribLocation(id, "vnormal");
 
 	vtangentLoc = glGetAttribLocation(id, "vtangent");
+
+	vboneIndicesLoc = glGetAttribLocation(id, "vboneIndices");
+	vboneWeightLoc = glGetAttribLocation(id, "vboneWeights");
 }
 
 
@@ -113,6 +116,20 @@ void Shader::setupAttribs() const {
 		glEnableVertexAttribArray(vtangentLoc);
 		glVertexAttribPointer(vtangentLoc, 3, GL_FLOAT, false, sizeof(Vertex),
 			reinterpret_cast<void*>(offsetof(Vertex, tangent)));
+	}
+
+	if (vboneIndicesLoc != -1)
+	{
+		glEnableVertexAttribArray(vboneIndicesLoc);
+		glVertexAttribPointer(vboneIndicesLoc, 4, GL_FLOAT, false, sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, bonesIndexes)));
+	}
+
+	if (vboneWeightLoc != -1)
+	{
+		glEnableVertexAttribArray(vboneWeightLoc);
+		glVertexAttribPointer(vboneWeightLoc, 4, GL_FLOAT, false, sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, bonesWeight)));
 	}
 }
 
